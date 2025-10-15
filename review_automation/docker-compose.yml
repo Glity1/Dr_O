@@ -1,0 +1,87 @@
+# # review_automation/docker-compose.yml
+
+# version: '3.8'
+
+# services:
+#   db:
+#     image: postgres:13
+#     container_name: review_db_container
+#     environment:
+#       POSTGRES_USER: user
+#       POSTGRES_PASSWORD: password
+#       POSTGRES_DB: review_db
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+
+# volumes:
+#   postgres_data:
+
+# docker-compose.yml
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: review_db
+    environment:
+      POSTGRES_USER: review_user
+      POSTGRES_PASSWORD: review_password
+      POSTGRES_DB: review_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - review_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: review_backend
+    environment:
+      DATABASE_URL: postgresql://review_user:review_password@postgres:5432/review_db
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      DUMMY_SITE_URL: http://dummy_site:5000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - review_network
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  dummy_site:
+    build:
+      context: ./dummy_site
+      dockerfile: Dockerfile
+    container_name: review_dummy_site
+    ports:
+      - "5000:5000"
+    networks:
+      - review_network
+    volumes:
+      - ./dummy_site:/app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: review_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - review_network
+
+volumes:
+  postgres_data:
+
+networks:
+  review_network:
+    driver: bridge
