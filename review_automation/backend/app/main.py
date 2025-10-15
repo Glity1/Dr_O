@@ -15,7 +15,7 @@ app = FastAPI(title="AI 리뷰 답변 시스템")
 # CORS 설정 (프론트엔드에서 API 호출 가능하도록)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 프로덕션에서는 특정 도메인만 허용
+    allow_origins=["http://localhost:5173"],  # 프로덕션에서는 특정 도메인만 허용
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
