@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:15
@@ -12,6 +14,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - review_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U review_user -d review_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   backend:
@@ -20,29 +27,27 @@ services:
       dockerfile: Dockerfile
     container_name: review_backend
     environment:
-      # 기존 DATABASE_URL 유지
       DATABASE_URL: postgresql://review_user:review_password@postgres:5432/review_db
-      
-      # entrypoint.sh를 위한 환경 변수 추가
-      POSTGRES_HOST: postgres
-      POSTGRES_USER: review_user
-      POSTGRES_PASSWORD: review_password
-      POSTGRES_DB: review_db
-      
-      # 기타 환경 변수
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       DUMMY_SITE_URL: http://dummy_site:5000
       PYTHONUNBUFFERED: 1
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      dummy_site:
+        condition: service_started
     networks:
       - review_network
     volumes:
       - ./backend:/app
-    # command 제거 - Dockerfile의 ENTRYPOINT 사용
-    # command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
 
   dummy_site:
@@ -56,6 +61,11 @@ services:
       - review_network
     volumes:
       - ./dummy_site:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
 
   frontend:
@@ -68,7 +78,8 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - review_network
     restart: unless-stopped

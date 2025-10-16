@@ -1,6 +1,6 @@
 # init_db.py - 데이터베이스 초기화
-from database import engine, Base
-from models import Review, SystemLog
+from app.database import engine, Base
+from app.models import Review, SystemLog
 
 def init_database():
     """데이터베이스 테이블 생성"""

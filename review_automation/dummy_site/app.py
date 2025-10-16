@@ -1,5 +1,4 @@
-# dummy_site/app.py
-from flask import Flask, render_template, request, jsonify, render_template_string
+from flask import Flask, render_template, request, jsonify
 from datetime import datetime
 import uuid
 import json
@@ -67,234 +66,6 @@ INITIAL_REVIEWS = [
     }
 ]
 
-# HTML 템플릿 (templates 폴더가 없을 경우를 위해 인라인으로 정의)
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리 카페 - 고객 리뷰</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-        }
-        
-        .review-form {
-            padding: 30px;
-            background: #f8f9fa;
-            border-bottom: 2px solid #e9ecef;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-        }
-        
-        .star {
-            font-size: 30px;
-            color: #ddd;
-            cursor: pointer;
-        }
-        
-        .star.active {
-            color: #ffc107;
-        }
-        
-        .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            cursor: pointer;
-        }
-        
-        .reviews-list {
-            padding: 30px;
-        }
-        
-        .review-item {
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .author {
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .date {
-            color: #999;
-            font-size: 0.9em;
-        }
-        
-        .review-content {
-            color: #666;
-            line-height: 1.6;
-            margin: 10px 0;
-        }
-        
-        .reply-box {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>☕ 우리 카페</h1>
-            <p>고객님의 소중한 의견을 들려주세요</p>
-        </div>
-        
-        <div class="review-form">
-            <h3>리뷰 작성하기</h3>
-            <form id="reviewForm">
-                <div class="form-group">
-                    <input type="text" id="customerName" placeholder="이름" required>
-                </div>
-                <div class="form-group">
-                    <div id="rating">
-                        <span class="star" data-rating="1">★</span>
-                        <span class="star" data-rating="2">★</span>
-                        <span class="star" data-rating="3">★</span>
-                        <span class="star" data-rating="4">★</span>
-                        <span class="star" data-rating="5">★</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <textarea id="reviewText" rows="4" placeholder="리뷰를 작성해주세요" required></textarea>
-                </div>
-                <button type="submit" class="submit-btn">리뷰 등록</button>
-            </form>
-        </div>
-        
-        <div class="reviews-list" id="reviewsList"></div>
-    </div>
-    
-    <script>
-        let selectedRating = 5;
-        
-        // 별점 선택
-        document.querySelectorAll('.star').forEach(star => {
-            star.addEventListener('click', () => {
-                selectedRating = parseInt(star.dataset.rating);
-                updateStars();
-            });
-        });
-        
-        function updateStars() {
-            document.querySelectorAll('.star').forEach((star, index) => {
-                star.classList.toggle('active', index < selectedRating);
-            });
-        }
-        updateStars();
-        
-        // 폼 제출
-        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const data = {
-                customer_name: document.getElementById('customerName').value,
-                review_text: document.getElementById('reviewText').value,
-                rating: selectedRating
-            };
-            
-            const response = await fetch('/api/reviews', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            });
-            
-            if (response.ok) {
-                alert('리뷰가 등록되었습니다!');
-                document.getElementById('reviewForm').reset();
-                loadReviews();
-            }
-        });
-        
-        // 리뷰 로드
-        async function loadReviews() {
-            const response = await fetch('/api/reviews');
-            const reviews = await response.json();
-            
-            const reviewsList = document.getElementById('reviewsList');
-            reviewsList.innerHTML = '';
-            
-            reviews.reverse().forEach(review => {
-                const div = document.createElement('div');
-                div.className = 'review-item';
-                div.setAttribute('data-review-id', review.id);
-                
-                let replyHtml = '';
-                if (review.reply) {
-                    replyHtml = `
-                        <div class="reply-box">
-                            <strong>${review.reply.author}:</strong> ${review.reply.text}
-                            <div style="font-size: 0.8em; color: #999; margin-top: 5px;">${review.reply.date}</div>
-                        </div>
-                    `;
-                }
-                
-                div.innerHTML = `
-                    <div>
-                        <span class="author">${review.customer_name}</span>
-                        <span class="date">${review.date}</span>
-                    </div>
-                    <div>평점: ${'★'.repeat(review.rating) + '☆'.repeat(5-review.rating)}</div>
-                    <div class="review-content">${review.review_text}</div>
-                    ${replyHtml}
-                `;
-                reviewsList.appendChild(div);
-            });
-        }
-        
-        loadReviews();
-        setInterval(loadReviews, 5000);
-    </script>
-</body>
-</html>
-"""
-
 # 앱 시작 시 초기 데이터 설정
 if not os.path.exists(DATA_FILE):
     save_reviews(INITIAL_REVIEWS)
@@ -303,7 +74,7 @@ if not os.path.exists(DATA_FILE):
 @app.route('/reviews')
 def index():
     """메인 페이지 - 리뷰 목록 표시"""
-    return render_template_string(HTML_TEMPLATE)
+    return render_template('index.html')
 
 @app.route('/api/reviews', methods=['GET'])
 def get_reviews():
@@ -329,11 +100,11 @@ def add_review():
     reviews.append(new_review)
     save_reviews(reviews)
     
-    return jsonify({"status": "success", "review": new_review})
+    return jsonify({"status": "success", "review": new_review}), 200
 
 @app.route('/api/reply', methods=['POST'])
 def add_reply():
-    """리뷰에 답변 추가 API"""
+    """리뷰에 답변 추가 API (기존 방식)"""
     data = request.json
     review_id = data.get('review_id')
     reply_text = data.get('reply_text')
@@ -352,9 +123,36 @@ def add_reply():
     
     return jsonify({"status": "error", "message": "Review not found"}), 404
 
+@app.route('/api/reviews/<review_id>/reply', methods=['POST'])
+def add_reply_restful(review_id):
+    """RESTful 방식의 답변 추가 API (자동화용)"""
+    data = request.json
+    reply_text = data.get('reply', data.get('reply_text'))
+    
+    if not reply_text:
+        return jsonify({"status": "error", "message": "Reply text is required"}), 400
+    
+    reviews = load_reviews()
+    
+    for review in reviews:
+        if review['id'] == review_id:
+            review['reply'] = {
+                "text": reply_text,
+                "date": datetime.now().strftime('%Y-%m-%d %H:%M'),
+                "author": "사장님"
+            }
+            save_reviews(reviews)
+            return jsonify({
+                "status": "success", 
+                "message": "Reply added",
+                "review": review
+            }), 201
+    
+    return jsonify({"status": "error", "message": "Review not found"}), 404
+
 if __name__ == '__main__':
     print("\n" + "="*50)
     print("더미 리뷰 사이트가 시작됩니다!")
     print("브라우저에서 접속: http://localhost:5000")
     print("="*50 + "\n")
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000)

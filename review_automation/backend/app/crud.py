@@ -2,7 +2,7 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
-from . import models, schemas
+from app import models, schemas
 
 def create_review(db: Session, review_data: dict) -> models.Review:
     """새 리뷰 생성"""

@@ -2,10 +2,10 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
-from database import get_db
-from models import Review, SystemLog
-from scraper import ReviewScraper
-from llm_service import LLMService
+from app.database import get_db
+from app.models import Review, SystemLog
+from app.scraper import ReviewScraper
+from app.llm_service import LLMService
 from typing import List, Dict
 from datetime import datetime, timedelta
 from pydantic import BaseModel
@@ -222,6 +222,65 @@ def get_recent_logs(limit: int = 50, db: Session = Depends(get_db)):
         }
         for log in logs
     ]
+    
+@app.post("/post-replies")
+def post_replies_to_dummy_site(
+    max_count: int = 10,
+    db: Session = Depends(get_db)
+):
+    """생성된 답변을 더미 사이트에 자동 게시"""
+    import os
+    import requests
+    
+    try:
+        # 답변이 생성되었지만 아직 게시되지 않은 리뷰 조회
+        reviews_to_post = db.query(Review)\
+            .filter(
+                Review.generated_reply.isnot(None),
+                Review.reply_posted == False
+            )\
+            .limit(max_count)\
+            .all()
+        
+        if not reviews_to_post:
+            return {
+                "success": True,
+                "message": "게시할 답변이 없습니다",
+                "posted_count": 0
+            }
+        
+        dummy_site_url = os.getenv("DUMMY_SITE_URL", "http://dummy_site:5000")
+        posted_count = 0
+        
+        for review in reviews_to_post:
+            try:
+                # 더미 사이트에 답변 게시
+                response = requests.post(
+                    f"{dummy_site_url}/api/reviews/{review.source_id}/reply",
+                    json={"reply": review.generated_reply},
+                    timeout=10
+                )
+                
+                if response.status_code in [200, 201]:
+                    # 게시 성공 표시
+                    review.reply_posted = True
+                    review.reply_posted_at = datetime.now()
+                    posted_count += 1
+                    
+            except Exception as e:
+                print(f"답변 게시 실패 (리뷰 ID: {review.id}): {str(e)}")
+                continue
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": f"{posted_count}개의 답변을 게시했습니다",
+            "posted_count": posted_count
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"답변 게시 실패: {str(e)}")
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from typing import Optional, Dict
 from sqlalchemy.orm import Session
-from models import Review, SystemLog
+from app.models import Review, SystemLog
 import time
 
 load_dotenv()

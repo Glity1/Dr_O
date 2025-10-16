@@ -5,7 +5,7 @@ from typing import List, Dict
 import os
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-from models import Review, SystemLog
+from app.models import Review, SystemLog
 import time
 
 load_dotenv()
