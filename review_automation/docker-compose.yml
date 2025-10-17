@@ -41,8 +41,6 @@ services:
       - review_network
     volumes:
       - ./backend:/app
-    # command 제거 - Dockerfile의 ENTRYPOINT 사용
-    # command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
 
   dummy_site:
@@ -62,9 +60,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # 빌드 시점에 환경 변수 전달 (중요!)
+        - VITE_API_URL=http://${EC2_PUBLIC_IP:-localhost}:8000
     container_name: review_frontend
-    environment:
-      REACT_APP_BACKEND_URL: http://localhost:8000
     ports:
       - "3000:80"
     depends_on:
