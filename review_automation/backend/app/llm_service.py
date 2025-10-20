@@ -196,6 +196,58 @@ class LLMService:
         
         print(f"\n📊 처리 완료: {success_count}/{len(pending_reviews)}개 성공")
         return success_count
+    
+    def generate_customer_story(self, customer_data: dict) -> str:
+        """고객 데이터를 바탕으로 AI가 스토리 생성"""
+        try:
+            name = customer_data.get('name', '고객')
+            total_reviews = customer_data.get('totalReviews', 0)
+            positive_reviews = customer_data.get('positiveReviews', 0)
+            loyalty_score = customer_data.get('loyaltyScore', 0)
+            top_keywords = customer_data.get('topKeywords', [])
+            first_review_date = customer_data.get('firstReviewDate', '')
+            last_review_date = customer_data.get('lastReviewDate', '')
+            review_samples = customer_data.get('reviewSamples', [])
+            
+            keywords_str = ', '.join([k.get('keyword', '') for k in top_keywords[:5]])
+            
+            prompt = f"""당신은 카페/레스토랑의 고객 관계 관리 전문가입니다.
+다음 고객 데이터를 바탕으로 자연스럽고 감성적인 고객 스토리를 작성해주세요.
+
+고객 정보:
+- 이름: {name}
+- 총 리뷰 수: {total_reviews}개
+- 긍정 리뷰 수: {positive_reviews}개
+- 충성도 점수: {loyalty_score}점 (100점 만점)
+- 첫 방문: {first_review_date}
+- 최근 방문: {last_review_date}
+- 주요 언급 키워드: {keywords_str}
+
+리뷰 샘플:
+{chr(10).join([f"- {r}" for r in review_samples[:3]])}
+
+작성 가이드라인:
+1. 고객의 방문 패턴과 특징을 자연스럽게 서술하세요
+2. 고객이 주로 언급한 키워드를 자연스럽게 녹여내세요
+3. 충성도 점수에 따라 VIP, 충성 고객, 잠재 고객 등으로 표현하세요
+4. 따뜻하고 개인화된 톤을 유지하세요
+5. 3-4문장으로 간결하게 작성하세요
+6. 과도한 수식어는 피하고 진정성 있게 작성하세요
+
+고객 스토리:"""
+
+            print(f"📖 고객 스토리 생성 중: {name}님")
+            
+            response = self.model.generate_content(prompt)
+            story = response.text.strip()
+            
+            print(f"✓ 스토리 생성 완료: {story[:50]}...")
+            return story
+            
+        except Exception as e:
+            print(f"❌ 고객 스토리 생성 실패: {e}")
+            # 실패 시 기본 스토리 반환
+            return f"{customer_data.get('name', '고객')}님은 총 {customer_data.get('totalReviews', 0)}번의 리뷰를 남겨주신 소중한 고객입니다."
 
 
 # 테스트용 실행 코드

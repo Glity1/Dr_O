@@ -19,6 +19,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: review_backend
+    env_file:
+      - .env
     environment:
       # 기존 DATABASE_URL 유지
       DATABASE_URL: postgresql://review_user:review_password@postgres:5432/review_db
@@ -33,6 +35,16 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       DUMMY_SITE_URL: http://dummy_site:5000
       PYTHONUNBUFFERED: 1
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      echo '⏳ 데이터베이스 연결 대기 중...' &&
+      sleep 10 &&
+      echo '🔧 데이터베이스 테이블 초기화 중...' &&
+      cd /app/app && python init_db.py &&
+      echo '🚀 애플리케이션 시작...' &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
     ports:
       - "8000:8000"
     depends_on:

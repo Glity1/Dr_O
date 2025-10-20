@@ -84,4 +84,10 @@ export const getRecentLogs = async (limit = 50) => {
   return response.data;
 };
 
+// 고객 스토리 생성 (Gemini AI)
+export const generateCustomerStory = async (customerData) => {
+  const response = await api.post('/generate-customer-story', customerData);
+  return response.data;
+};
+
 export default api;

@@ -3,7 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 const SentimentChart = ({ trendData }) => {
   if (!trendData) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-6 border-2 border-yellow-400">
         <h2 className="text-xl font-bold text-gray-900 mb-4">감성 추이</h2>
         <div className="h-80 flex items-center justify-center">
           <div className="animate-pulse text-gray-400">데이터 로딩 중...</div>
@@ -46,7 +46,7 @@ const SentimentChart = ({ trendData }) => {
 
   if (chartData.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-6 border-2 border-yellow-400">
         <h2 className="text-xl font-bold text-gray-900 mb-4">감성 추이</h2>
         <div className="h-80 flex items-center justify-center text-gray-500">
           아직 데이터가 충분하지 않습니다.
@@ -56,7 +56,7 @@ const SentimentChart = ({ trendData }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-6 border-2 border-yellow-400">
       <h2 className="text-xl font-bold text-gray-900 mb-4">최근 7일 감성 추이</h2>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>
@@ -78,26 +78,26 @@ const SentimentChart = ({ trendData }) => {
           <Line 
             type="monotone" 
             dataKey="긍정" 
-            stroke="#10b981" 
-            strokeWidth={2}
-            dot={{ fill: '#10b981', r: 4 }}
-            activeDot={{ r: 6 }}
+            stroke="#22c55e" 
+            strokeWidth={3}
+            dot={{ fill: '#22c55e', r: 5 }}
+            activeDot={{ r: 7 }}
           />
           <Line 
             type="monotone" 
             dataKey="부정" 
             stroke="#ef4444" 
-            strokeWidth={2}
-            dot={{ fill: '#ef4444', r: 4 }}
-            activeDot={{ r: 6 }}
+            strokeWidth={3}
+            dot={{ fill: '#ef4444', r: 5 }}
+            activeDot={{ r: 7 }}
           />
           <Line 
             type="monotone" 
             dataKey="중립" 
-            stroke="#6b7280" 
-            strokeWidth={2}
-            dot={{ fill: '#6b7280', r: 4 }}
-            activeDot={{ r: 6 }}
+            stroke="#eab308" 
+            strokeWidth={3}
+            dot={{ fill: '#eab308', r: 5 }}
+            activeDot={{ r: 7 }}
           />
         </LineChart>
       </ResponsiveContainer>

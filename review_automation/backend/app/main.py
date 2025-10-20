@@ -135,7 +135,8 @@ def get_sentiment_trend(days: int = 7, db: Session = Depends(get_db)):
         Review.sentiment,
         func.count(Review.id).label('count')
     ).filter(
-        Review.review_date >= cutoff_date
+        Review.review_date >= cutoff_date,
+        Review.sentiment.isnot(None)  # 감성 분석이 완료된 리뷰만
     ).group_by(
         func.date(Review.review_date),
         Review.sentiment
@@ -168,7 +169,7 @@ def trigger_scraping(db: Session = Depends(get_db)):
 
 @app.post("/generate-replies")
 def trigger_reply_generation(
-    max_count: int = 10,
+    max_count: int = 100,  # 기본값을 100으로 증가
     db: Session = Depends(get_db)
 ):
     """LLM 답변 생성 작업 실행"""
@@ -281,6 +282,22 @@ def post_replies_to_dummy_site(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"답변 게시 실패: {str(e)}")
+
+
+@app.post("/generate-customer-story")
+def generate_customer_story(
+    customer_data: dict,
+    db: Session = Depends(get_db)
+):
+    """고객 스토리 생성 (Gemini AI 사용)"""
+    try:
+        story = llm_service.generate_customer_story(customer_data)
+        return {
+            "success": True,
+            "story": story
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"스토리 생성 실패: {str(e)}")
 
 
 if __name__ == "__main__":
