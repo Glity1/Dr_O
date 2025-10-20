@@ -345,3 +345,6 @@ docker-compose up -d
 3. **API 문서**: FastAPI 자동 생성 문서 활용
 4. **테스트**: pytest (백엔드), Jest (프론트엔드)
 
+
+
+

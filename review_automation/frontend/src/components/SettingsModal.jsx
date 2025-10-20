@@ -75,3 +75,6 @@ const SettingsModal = ({ isOpen, onClose, onReplayIntro }) => {
 export default SettingsModal;
 
 
+
+
+
