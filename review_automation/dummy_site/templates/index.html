@@ -3,40 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리 카페 - 고객 리뷰</title>
+    <title>프리미엄 원두 커피 세트 - 우리 카페 스토어</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>☕ 우리 카페</h1>
-            <p>고객님의 소중한 의견을 들려주세요</p>
+    <!-- 상단 네비게이션 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-coffee"></i>
+                <span>우리 카페 스토어</span>
+            </div>
+            <div class="nav-links">
+                <a href="#"><i class="fas fa-home"></i> 홈</a>
+                <a href="#"><i class="fas fa-box"></i> 상품</a>
+                <a href="#"><i class="fas fa-percent"></i> 특가</a>
+                <a href="#"><i class="fas fa-user"></i> 마이페이지</a>
+                <a href="#" class="cart-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge">0</span>
+                </a>
+            </div>
         </div>
-        
-        <div class="review-form">
-            <h3>리뷰 작성하기</h3>
-            <form id="reviewForm">
-                <div class="form-group">
-                    <input type="text" id="customerName" placeholder="이름" required>
+    </nav>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="main-container">
+        <!-- 상품 정보 섹션 -->
+        <div class="product-section">
+            <div class="product-images">
+                <div class="main-image">
+                    <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=500" alt="프리미엄 커피">
                 </div>
-                <div class="form-group">
-                    <div id="rating">
-                        <span class="star" data-rating="1">★</span>
-                        <span class="star" data-rating="2">★</span>
-                        <span class="star" data-rating="3">★</span>
-                        <span class="star" data-rating="4">★</span>
-                        <span class="star" data-rating="5">★</span>
+                <div class="thumbnail-images">
+                    <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=100" class="active" alt="썸네일1">
+                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=100" alt="썸네일2">
+                    <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=100" alt="썸네일3">
+                    <img src="https://images.unsplash.com/photo-1511537190424-bbbab87ac5eb?w=100" alt="썸네일4">
+                </div>
+            </div>
+            
+            <div class="product-info">
+                <div class="product-badge">베스트셀러</div>
+                <h1 class="product-title">프리미엄 원두 커피 세트 (500g x 3팩)</h1>
+                
+                <div class="rating-summary">
+                    <span class="stars">★★★★★</span>
+                    <span class="rating-text">4.8</span>
+                    <span class="review-count">(2,847개 리뷰)</span>
+                </div>
+                
+                <div class="price-section">
+                    <span class="discount-rate">35%</span>
+                    <span class="original-price">89,000원</span>
+                    <div class="sale-price">57,850원</div>
+                </div>
+                
+                <div class="delivery-info">
+                    <div class="info-row">
+                        <i class="fas fa-truck"></i>
+                        <span><strong>무료배송</strong> | 오늘출발 (15시 이전 주문시)</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="fas fa-gift"></i>
+                        <span>첫 구매 시 <strong>5,000원 할인쿠폰</strong> 증정</span>
                     </div>
                 </div>
-                <div class="form-group">
-                    <textarea id="reviewText" rows="4" placeholder="리뷰를 작성해주세요" required></textarea>
+                
+                <div class="quantity-selector">
+                    <label>수량</label>
+                    <div class="quantity-control">
+                        <button class="qty-btn">-</button>
+                        <input type="number" value="1" min="1">
+                        <button class="qty-btn">+</button>
+                    </div>
                 </div>
-                <button type="submit" class="submit-btn">리뷰 등록</button>
-            </form>
+                
+                <div class="total-price">
+                    <span>총 상품금액</span>
+                    <span class="total-amount">57,850원</span>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn-cart"><i class="fas fa-shopping-cart"></i> 장바구니</button>
+                    <button class="btn-buy">바로구매</button>
+                </div>
+            </div>
         </div>
-        
-        <div class="reviews-list" id="reviewsList"></div>
+
+        <!-- 탭 메뉴 -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab active" data-tab="detail">상품정보</button>
+                <button class="tab" data-tab="review">리뷰 (<span id="reviewCount">0</span>)</button>
+                <button class="tab" data-tab="qna">문의</button>
+                <button class="tab" data-tab="delivery">배송/교환/반품</button>
+            </div>
+        </div>
+
+        <!-- 탭 컨텐츠 -->
+        <div class="tab-content active" id="detail-tab">
+            <div class="product-detail">
+                <h2>상품 상세정보</h2>
+                <div class="detail-section">
+                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800" alt="상품상세1">
+                    <h3>🌟 프리미엄 원두 3종 세트</h3>
+                    <p>전 세계 최고급 산지에서 엄선한 원두를 신선하게 로스팅하여 제공합니다.</p>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <i class="fas fa-leaf"></i>
+                            <h4>100% 유기농</h4>
+                            <p>화학비료를 사용하지 않은 친환경 재배</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-fire"></i>
+                            <h4>당일 로스팅</h4>
+                            <p>주문 후 바로 로스팅하여 신선함 유지</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-certificate"></i>
+                            <h4>품질 보증</h4>
+                            <p>국제 커피 품질 인증 획득</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-heart"></i>
+                            <h4>고객 만족</h4>
+                            <p>재구매율 95% 이상</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="review-tab">
+            <div class="review-section">
+                <div class="review-header">
+                    <h2>고객 리뷰</h2>
+                    <button class="write-review-btn" id="writeReviewBtn">
+                        <i class="fas fa-edit"></i> 리뷰 작성하기
+                    </button>
+                </div>
+
+                <!-- 리뷰 작성 폼 (모달) -->
+                <div class="review-modal" id="reviewModal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>리뷰 작성</h3>
+                            <button class="close-modal" id="closeModal">&times;</button>
+                        </div>
+                        <form id="reviewForm">
+                            <div class="form-group">
+                                <label>이름</label>
+                                <input type="text" id="customerName" placeholder="이름을 입력하세요" required>
+                            </div>
+                            <div class="form-group">
+                                <label>별점</label>
+                                <div id="rating" class="rating-input">
+                                    <span class="star" data-rating="1">★</span>
+                                    <span class="star" data-rating="2">★</span>
+                                    <span class="star" data-rating="3">★</span>
+                                    <span class="star" data-rating="4">★</span>
+                                    <span class="star" data-rating="5">★</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>리뷰 내용</label>
+                                <textarea id="reviewText" rows="5" placeholder="상품에 대한 솔직한 리뷰를 남겨주세요" required></textarea>
+                            </div>
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-paper-plane"></i> 등록하기
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 리뷰 통계 -->
+                <div class="review-stats">
+                    <div class="stats-summary">
+                        <div class="avg-rating">
+                            <div class="rating-number">4.8</div>
+                            <div class="rating-stars">★★★★★</div>
+                            <div class="rating-label">평균 평점</div>
+                        </div>
+                    </div>
+                    <div class="stats-bars">
+                        <div class="stat-bar">
+                            <span>5점</span>
+                            <div class="bar"><div class="fill" style="width: 75%"></div></div>
+                            <span>75%</span>
+                        </div>
+                        <div class="stat-bar">
+                            <span>4점</span>
+                            <div class="bar"><div class="fill" style="width: 15%"></div></div>
+                            <span>15%</span>
+                        </div>
+                        <div class="stat-bar">
+                            <span>3점</span>
+                            <div class="bar"><div class="fill" style="width: 7%"></div></div>
+                            <span>7%</span>
+                        </div>
+                        <div class="stat-bar">
+                            <span>2점</span>
+                            <div class="bar"><div class="fill" style="width: 2%"></div></div>
+                            <span>2%</span>
+                        </div>
+                        <div class="stat-bar">
+                            <span>1점</span>
+                            <div class="bar"><div class="fill" style="width: 1%"></div></div>
+                            <span>1%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 리뷰 목록 -->
+                <div class="reviews-list" id="reviewsList"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="qna-tab">
+            <div class="qna-section">
+                <h2>상품 문의</h2>
+                <p class="empty-message">아직 문의가 없습니다.</p>
+            </div>
+        </div>
+
+        <div class="tab-content" id="delivery-tab">
+            <div class="delivery-section">
+                <h2>배송/교환/반품 안내</h2>
+                <div class="info-box">
+                    <h3>배송 안내</h3>
+                    <ul>
+                        <li>배송비: 무료배송 (3만원 이상 구매시)</li>
+                        <li>배송기간: 주문 후 1-3일 이내 도착</li>
+                        <li>배송방법: CJ대한통운</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <h3>교환/반품 안내</h3>
+                    <ul>
+                        <li>교환/반품 가능기간: 상품 수령 후 7일 이내</li>
+                        <li>교환/반품 비용: 고객 변심 시 왕복배송비 부담</li>
+                        <li>단순 변심으로 인한 반품 불가</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>고객센터</h4>
+                <p>1588-1234</p>
+                <p>평일 09:00 - 18:00</p>
+            </div>
+            <div class="footer-section">
+                <h4>회사정보</h4>
+                <p>대표: 홍길동</p>
+                <p>사업자번호: 123-45-67890</p>
+            </div>
+            <div class="footer-section">
+                <h4>소셜미디어</h4>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 우리 카페 스토어. All rights reserved.</p>
+        </div>
+    </footer>
     
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
